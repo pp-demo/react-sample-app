@@ -1,15 +1,22 @@
 pipeline {
     agent any
 
+    parameters {
+        string(name: 'BRANCH', defaultValue: 'main', description: 'Branch to build')
+    }
+
     environment {
-        registry = "<aws_account_id>.dkr.ecr.<region>.amazonaws.com"
-        image = "${registry}/<repository_name>:${env.BUILD_ID}"
+        registry = "211125474443.dkr.ecr.ecr.eu-north-1.amazonaws.com"
+        image = "${registry}/react-sample-app:${env.BUILD_ID}"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                script {
+                    // Checkout the specified branch
+                    checkout([$class: 'GitSCM', branches: [[name: "*/${params.BRANCH}"]], userRemoteConfigs: [[url: 'https://github.com/pp-demo/react-sample-app']]])
+                }
             }
         }
 
@@ -24,7 +31,9 @@ pipeline {
         stage('Push Docker image to ECR') {
             steps {
                 script {
-                    sh "aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin ${registry}"
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'AWS_JENKINS_ACCESS_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                        sh "aws ecr get-login-password --region ecr.eu-north-1 | docker login --username AWS --password-stdin ${registry}"
+                    }
                     sh "docker push ${image}"
                 }
             }
