@@ -23,7 +23,8 @@ pipeline {
         stage('Build Docker image') {
             steps {
                 script {
-                    sh "docker build -t ${image} ."
+                    // Build the Docker image
+                    docker.build(image, '.')
                 }
             }
         }
@@ -33,10 +34,9 @@ pipeline {
                 script {
                     // Authenticate with AWS ECR using AWS credentials
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'AWS_JENKINS_ACCESS_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                        // Use docker.withRegistry to push the Docker image to ECR
+                        // Push the Docker image to ECR
                         docker.withRegistry('https://' + registry, 'aws') {
-                            // Push the Docker image to ECR
-                            sh "docker push ${image}"
+                            docker.image(image).push()
                         }
                     }
                 }
