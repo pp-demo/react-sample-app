@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'docker:19.03.12'
+            args '--group-add docker'
+        }
+    }
 
     parameters {
         string(name: 'BRANCH', defaultValue: 'main', description: 'Branch to build')
