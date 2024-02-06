@@ -1,7 +1,5 @@
 pipeline {
-   agent {
-        docker { image 'node:20.11.0-alpine3.19' }
-    }
+    agent any
 
     parameters {
         string(name: 'BRANCH', defaultValue: 'main', description: 'Branch to build')
@@ -33,10 +31,14 @@ pipeline {
         stage('Push Docker image to ECR') {
             steps {
                 script {
+                    // Authenticate with AWS ECR using AWS credentials
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'AWS_JENKINS_ACCESS_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                        sh "aws ecr get-login-password --region ecr.eu-north-1 | docker login --username AWS --password-stdin ${registry}"
+                        // Use docker.withRegistry to push the Docker image to ECR
+                        docker.withRegistry('https://' + registry, 'aws') {
+                            // Push the Docker image to ECR
+                            sh "docker push ${image}"
+                        }
                     }
-                    sh "docker push ${image}"
                 }
             }
         }
