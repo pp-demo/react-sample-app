@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+   agent {
+        docker { image 'node:20.11.0-alpine3.19' }
+    }
 
     parameters {
         string(name: 'BRANCH', defaultValue: 'main', description: 'Branch to build')
