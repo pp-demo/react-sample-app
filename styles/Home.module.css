@@ -1,0 +1,7 @@
+/* styles/Home.module.css */
+.header {
+  background-color: black;
+  color: white;
+  padding: 10px;
+  text-align: center;
+}
