@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'docker:19.03.12'
-            args '--group-add docker'
-        }
-    }
+    agent any
 
     parameters {
         string(name: 'BRANCH', defaultValue: 'main', description: 'Branch to build')
@@ -28,18 +23,10 @@ pipeline {
         stage('Build Docker image') {
             steps {
                 script {
-                    sh "docker build -t ${image} ."
-                }
-            }
-        }
-
-        stage('Push Docker image to ECR') {
-            steps {
-                script {
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'AWS_JENKINS_ACCESS_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                        sh "aws ecr get-login-password --region ecr.eu-north-1 | docker login --username AWS --password-stdin ${registry}"
+                    docker.withRegistry('https://${registry}', 'ecr:eu-north-1:aws-credentials-id') {
+                        def appImage = docker.build(image)
+                        appImage.push()
                     }
-                    sh "docker push ${image}"
                 }
             }
         }
