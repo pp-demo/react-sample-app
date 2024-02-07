@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         registry = "211125474443.dkr.ecr.ecr.eu-north-1.amazonaws.com"
-        image = "${registry}/react-sample-app:${env.BUILD_ID}"
+        image = "${registry}/react-sample-app"
     }
 
     stages {
@@ -23,12 +23,23 @@ pipeline {
         stage('Build Docker image') {
             steps {
                 script {
-                    docker.withRegistry('https://${registry}', 'ecr:eu-north-1:832ef773-e909-4a43-8302-9bc20b298145') {
-                        def appImage = docker.build(image)
-                        appImage.push()
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: '832ef773-e909-4a43-8302-9bc20b298145']]) {
+                        docker.withRegistry('https://${registry}') {
+                            def appImage = docker.build("${image}:${env.GIT_COMMIT}")
+                            appImage.push()
+                        }
                     }
                 }
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build and push to ECR succeeded.'
+        }
+        failure {
+            echo 'Build or push to ECR failed.'
         }
     }
 }
