@@ -23,7 +23,7 @@ pipeline {
         stage('Build Docker image') {
             steps {
                 script {
-                    docker.withRegistry('https://${registry}', 'ecr:eu-north-1:AWS_JENKINS_ACCESS_ID') {
+                    docker.withRegistry('https://${registry}', 'ecr:eu-north-1:832ef773-e909-4a43-8302-9bc20b298145') {
                         def appImage = docker.build(image)
                         appImage.push()
                     }
