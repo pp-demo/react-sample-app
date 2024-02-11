@@ -23,11 +23,10 @@ pipeline {
         stage('Build Docker image') {
             steps {
                 script {
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: '832ef773-e909-4a43-8302-9bc20b298145']]) {
-                        docker.withRegistry('https://${registry}') {
-                            def appImage = docker.build("${image}:${env.GIT_COMMIT}")
-                            appImage.push()
-                        }
+                    withAWS(region: 'eu-north-1', credentials: 'AWS_JEKNKINS_CRED') {
+                        def appImage = docker.build("${image}:${env.GIT_COMMIT}")
+                        sh "aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin ${registry}"
+                        appImage.push()
                     }
                 }
             }
