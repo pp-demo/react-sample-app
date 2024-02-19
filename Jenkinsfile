@@ -24,16 +24,6 @@ pipeline {
             }
         }
 
-        stage('Setup Docker') {
-            steps {
-                script {
-                    sh 'service docker start || systemctl start docker'
-                    sh 'DOCKER_BUILDKIT=1'
-                    sh 'docker buildx install'
-                }
-            }
-        }
-
         stage('Build Docker image') {
             steps {
                 script {
