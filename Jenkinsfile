@@ -1,8 +1,8 @@
 pipeline {
     agent {
         node {
-                label 'main-worker'
-            }
+            label 'main-worker'
+        }
     }
 
     parameters {
@@ -20,6 +20,16 @@ pipeline {
                 script {
                     // Checkout the specified branch
                     checkout([$class: 'GitSCM', branches: [[name: "*/${params.BRANCH}"]], userRemoteConfigs: [[url: 'https://github.com/pp-demo/react-sample-app']]])
+                }
+            }
+        }
+
+        stage('Setup Docker') {
+            steps {
+                script {
+                    sh 'service docker start || systemctl start docker'
+                    sh 'DOCKER_BUILDKIT=1'
+                    sh 'docker buildx install'
                 }
             }
         }
