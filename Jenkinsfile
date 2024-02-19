@@ -1,14 +1,10 @@
 pipeline {
     agent {
-        docker {
-        image 'ghcr.io/felipecrs/jenkins-agent-dind:latest'
-        alwaysPull true
-        // --rm: ensures the container volumes are removed after the build
-        // --group-add=docker: is needed when using docker exec to run commands,
-        // which is what Jenkins does when running as a Jenkinsfile docker agent
-        args '--rm --privileged --group-add=docker'
-        }
+        node {
+                label 'main-worker'
+            }
     }
+
     parameters {
         string(name: 'BRANCH', defaultValue: 'main', description: 'Branch to build')
     }
