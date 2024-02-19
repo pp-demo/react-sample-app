@@ -28,9 +28,9 @@ pipeline {
             steps {
                 script {
                     withAWS(region: 'eu-north-1', credentials: 'AWS_JENKINS_CRED') {
-                        sh "docker build -t ${image}:${env.GIT_COMMIT} ."
-                        sh "aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin ${registry}"
-                        sh "docker push ${image}:${env.GIT_COMMIT}"
+                        sh "sudo docker build -t ${image}:${env.GIT_COMMIT} ."
+                        sh "sudo aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin ${registry}"
+                        sh "sudo docker push ${image}:${env.GIT_COMMIT}"
                     }
                 }
             }
