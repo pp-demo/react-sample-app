@@ -2,6 +2,8 @@ pipeline {
     agent {
         node {
             label 'main-worker'
+        }
+        kubernetes {
             defaultContainer 'docker'
         }
     }
